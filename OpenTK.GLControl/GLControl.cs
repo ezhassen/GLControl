@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel;
 using System.ComponentModel.Design;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using OpenTK.Mathematics;
@@ -45,6 +46,7 @@ namespace OpenTK.GLControl
         /// This value cannot be changed after the control has been initialized (before <see cref="OnHandleCreated(EventArgs)"/> is triggered).
         /// </summary>
         [Category("OpenGL")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden), Browsable(false)]
         public ContextAPI API
         {
             get => _nativeWindow?.API ?? _glControlSettings.API;
@@ -66,6 +68,7 @@ namespace OpenTK.GLControl
         /// This value cannot be changed after the control has been initialized (before <see cref="OnHandleCreated(EventArgs)"/> is triggered).
         /// </summary>
         [Category("OpenGL")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden), Browsable(false)]
         public ContextProfile Profile
         {
             get => _nativeWindow?.Profile ?? _glControlSettings.Profile;
@@ -87,6 +90,7 @@ namespace OpenTK.GLControl
         /// This value cannot be changed after the control has been initialized (before <see cref="OnHandleCreated(EventArgs)"/> is triggered).
         /// </summary>
         [Category("OpenGL")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden), Browsable(false)]
         public ContextFlags Flags
         {
             get => _nativeWindow?.Flags ?? _glControlSettings.Flags;
@@ -108,6 +112,7 @@ namespace OpenTK.GLControl
         /// This value cannot be changed after the control has been initialized (before <see cref="OnHandleCreated(EventArgs)"/> is triggered).
         /// </summary>
         [Category("OpenGL")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden), Browsable(false)]
         public Version APIVersion
         {
             get => _nativeWindow?.APIVersion ?? _glControlSettings.APIVersion;
@@ -129,6 +134,7 @@ namespace OpenTK.GLControl
         /// This value cannot be changed after the control has been initialized (before <see cref="OnHandleCreated(EventArgs)"/> is triggered).
         /// </summary>
         [Category("OpenGL")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden), Browsable(false)]
         public GLControl? SharedContext
         {
             get => _sharedContext;
@@ -158,6 +164,7 @@ namespace OpenTK.GLControl
         /// where the program only needs to do any processing after the user inputs something.
         /// </summary>
         [Category("Behavior")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden), Browsable(false)]
         public bool IsEventDriven
         {
             get => _nativeWindow?.IsEventDriven ?? _glControlSettings.IsEventDriven;
@@ -207,8 +214,8 @@ namespace OpenTK.GLControl
         public float AspectRatio
             => Width / (float)Height;
 
-        // Remove the Text property from the WinForms editor.
-        [Browsable(false)]
+        // Fix for CS8765: Adjusting the nullability of the 'value' parameter to match the overridden member.
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden), Browsable(false), AllowNull]
         public override string Text { get => base.Text; set => base.Text = value; }
 
         /// <summary>
@@ -281,7 +288,7 @@ namespace OpenTK.GLControl
                 ForceFocusToCorrectWindow();
             }
 
-            IComponentChangeService changeService = (IComponentChangeService)GetService(typeof(IComponentChangeService));
+            IComponentChangeService? changeService = GetService(typeof(IComponentChangeService)) as IComponentChangeService;
             if (changeService != null)
             {
                 changeService.ComponentChanged -= ChangeService_ComponentChanged; // to avoid multiple subscriptions
@@ -296,7 +303,7 @@ namespace OpenTK.GLControl
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">A System.ComponentModel.Design.ComponentChangedEventArgs that contains the event data.</param>
-        private void ChangeService_ComponentChanged(object sender, ComponentChangedEventArgs e)
+        private void ChangeService_ComponentChanged(object? sender, ComponentChangedEventArgs e)
         {
             if (e.Component == this && DesignMode)
             {
@@ -513,7 +520,7 @@ namespace OpenTK.GLControl
                 return true;
 
             // Try walking the control tree to see if any ancestors are in DesignMode.
-            for (Control control = this; control != null; control = control.Parent)
+            for (Control? control = this; control != null; control = control.Parent)
             {
                 if (control.Site != null && control.Site.DesignMode)
                     return true;
@@ -595,7 +602,7 @@ namespace OpenTK.GLControl
         {
             // There is no good way to explain this event except to say
             // that it's just another name for OnControlCreated.
-            ((EventHandler)Events[EVENT_LOAD])?.Invoke(this, e);
+            if (Events[EVENT_LOAD] is EventHandler ev) ev.Invoke(this, e);
         }
 
         /// <summary>
