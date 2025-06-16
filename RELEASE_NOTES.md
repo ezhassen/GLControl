@@ -1,5 +1,8 @@
 # Release notes
 
+## [4.0.3]
+- A Fork of OpenTK to migrate it to .NET9.0 (custom build)
+
 ## [4.0.2]
 - Make `GLControl` work with `OpenTK` `4.9.3`. (@NogginBops)
 

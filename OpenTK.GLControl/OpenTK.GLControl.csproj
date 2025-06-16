@@ -8,22 +8,24 @@
     <LangVersion>8.0</LangVersion>
     <!--Version info is filled by Nuke build-->
     <Authors>Team OpenTK</Authors>
-    <Description>A WinForms control designed to wrap the OpenTK 4.x APIs.</Description>
-    <Copyright>Copyright (c) 2021 Team OpenTK</Copyright>
+    <Description>A WinForms control designed to wrap the OpenTK 4.x APIs. (A Fork of OpenTK to migrate it to .NET9.0 (custom build))</Description>
+    <Copyright>Copyright (c) 2025 Team OpenTK</Copyright>
     <Company>Team OpenTK</Company>
-    <PackageProjectUrl>https://github.com/opentk/GLControl</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/opentk/GLControl</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/ezhassen/GLControl</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/ezhassen/GLControl</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageTags>OpenTK, GLControl</PackageTags>
     <Nullable>enable</Nullable>
+    <Version>4.0.3</Version>
+    <PackageId>OpenTKEzz.GLControl</PackageId>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="OpenTK.Graphics" Version="4.9.3" />
-    <PackageReference Include="OpenTK.Windowing.Desktop" Version="4.9.3" />
+    <PackageReference Include="OpenTKEzz.Graphics" Version="4.9.8" />
+    <PackageReference Include="OpenTKEzz.Windowing.Desktop" Version="4.9.8" />
   </ItemGroup>
 
   <ItemGroup>
