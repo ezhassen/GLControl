@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0-windows</TargetFramework>
+    <TargetFrameworks>net9.0-windows;net8.0-windows;net6.0-windows</TargetFrameworks>
     <UseWindowsForms>true</UseWindowsForms>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -19,19 +19,13 @@
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageTags>OpenTK, GLControl</PackageTags>
     <Nullable>enable</Nullable>
-    <Version>4.0.3</Version>
+    <Version>4.0.4</Version>
     <PackageId>OpenTKEzz.GLControl</PackageId>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="OpenTKEzz.Graphics" Version="4.9.8" />
-    <PackageReference Include="OpenTKEzz.Windowing.Desktop" Version="4.9.8" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="GLControl.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <PackageReference Include="OpenTKEzz.Graphics" Version="4.9.9" />
+    <PackageReference Include="OpenTKEzz.Windowing.Desktop" Version="4.9.9" />
   </ItemGroup>
 
 </Project>

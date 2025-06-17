@@ -1,5 +1,8 @@
 # Release notes
 
+## [4.0.4]
+- Added .net6.0 and .net8.0
+
 ## [4.0.3]
 - A Fork of OpenTK to migrate it to .NET9.0 (custom build)
 
