@@ -1,13 +1,13 @@
+using OpenTK.Mathematics;
+using OpenTK.Windowing.Common;
+using OpenTK.Windowing.Desktop;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 using System;
 using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using OpenTK.Mathematics;
-using OpenTK.Windowing.Common;
-using OpenTK.Windowing.Desktop;
-using OpenTK.Windowing.GraphicsLibraryFramework;
 using NativeWindow = OpenTK.Windowing.Desktop.NativeWindow;
 
 namespace OpenTK.GLControl
@@ -215,7 +215,10 @@ namespace OpenTK.GLControl
             => Width / (float)Height;
 
         // Fix for CS8765: Adjusting the nullability of the 'value' parameter to match the overridden member.
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden), Browsable(false), AllowNull]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden), Browsable(false)]
+#if !NETFRAMEWORK
+        [AllowNull]
+#endif
         public override string Text { get => base.Text; set => base.Text = value; }
 
         /// <summary>
@@ -254,7 +257,20 @@ namespace OpenTK.GLControl
             DoubleBuffered = false;
 
             _glControlSettings = glControlSettings != null
-                ? glControlSettings.Clone() : new GLControlSettings();
+                ? glControlSettings.Clone() : GetDefaultGLControlSettings();
+        }
+        GLControlSettings GetDefaultGLControlSettings()
+        {
+#if NETFRAMEWORK
+            var newGLS = new GLControlSettings();
+            newGLS.Flags = ContextFlags.Default;
+            //newGLS.API = ContextAPI.OpenGL;
+            //newGLS.APIVersion = new Version(4,6);
+            //newGLS.Profile = ContextProfile.Compatability;
+            return newGLS;
+#else
+            return GLControlSettings.Default;
+#endif
         }
 
         /// <summary>
@@ -358,10 +374,14 @@ namespace OpenTK.GLControl
                 const int CS_OWNDC = 0x20;
 
                 CreateParams cp = base.CreateParams;
+#if NETFRAMEWORK
+                cp.ClassStyle |= CS_VREDRAW | CS_HREDRAW | CS_OWNDC;
+#else
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
                     cp.ClassStyle |= CS_VREDRAW | CS_HREDRAW | CS_OWNDC;
                 }
+#endif
                 return cp;
             }
         }
@@ -433,31 +453,40 @@ namespace OpenTK.GLControl
         /// <param name="nativeWindow">The NativeWindow that must become a child of this control.</param>
         private unsafe void NonportableReparent(NativeWindow nativeWindow)
         {
+#if NETFRAMEWORK
+            NonportableReparent_Windows(nativeWindow);
+#else
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                IntPtr hWnd = GLFW.GetWin32Window(nativeWindow.WindowPtr);
-
-                // Reparent the real HWND under this control.
-                Win32.SetParent(hWnd, Handle);
-
-                // Change the real HWND's window styles to be "WS_CHILD | WS_DISABLED" (i.e.,
-                // a child of some container, with no input support), and turn off *all* the
-                // other style bits (most of the rest of them could cause trouble).  In
-                // particular, this turns off stuff like WS_BORDER and WS_CAPTION and WS_POPUP
-                // and so on, any of which GLFW might have turned on for us.
-                IntPtr style = (IntPtr)(long)(Win32.WindowStyles.WS_CHILD
-                    | Win32.WindowStyles.WS_DISABLED);
-                Win32.SetWindowLongPtr(hWnd, Win32.WindowLongs.GWL_STYLE, style);
-
-                // Change the real HWND's extended window styles to be "WS_EX_NOACTIVATE", and
-                // turn off *all* the other extended style bits (most of the rest of them
-                // could cause trouble).  We want WS_EX_NOACTIVATE because we don't want
-                // Windows mistakenly giving the GLFW window the focus as soon as it's created,
-                // regardless of whether it's a hidden window.
-                style = (IntPtr)(long)Win32.WindowStylesEx.WS_EX_NOACTIVATE;
-                Win32.SetWindowLongPtr(hWnd, Win32.WindowLongs.GWL_EXSTYLE, style);
+                NonportableReparent_Windows(nativeWindow);
             }
             else throw new NotSupportedException("The current operating system is not supported by this control.");
+#endif
+        }
+
+        private unsafe void NonportableReparent_Windows(NativeWindow nativeWindow)
+        {
+            IntPtr hWnd = GLFW.GetWin32Window(nativeWindow.WindowPtr);
+
+            // Reparent the real HWND under this control.
+            Win32.SetParent(hWnd, Handle);
+
+            // Change the real HWND's window styles to be "WS_CHILD | WS_DISABLED" (i.e.,
+            // a child of some container, with no input support), and turn off *all* the
+            // other style bits (most of the rest of them could cause trouble).  In
+            // particular, this turns off stuff like WS_BORDER and WS_CAPTION and WS_POPUP
+            // and so on, any of which GLFW might have turned on for us.
+            IntPtr style = (IntPtr)(long)(Win32.WindowStyles.WS_CHILD
+                | Win32.WindowStyles.WS_DISABLED);
+            Win32.SetWindowLongPtr(hWnd, Win32.WindowLongs.GWL_STYLE, style);
+
+            // Change the real HWND's extended window styles to be "WS_EX_NOACTIVATE", and
+            // turn off *all* the other extended style bits (most of the rest of them
+            // could cause trouble).  We want WS_EX_NOACTIVATE because we don't want
+            // Windows mistakenly giving the GLFW window the focus as soon as it's created,
+            // regardless of whether it's a hidden window.
+            style = (IntPtr)(long)Win32.WindowStylesEx.WS_EX_NOACTIVATE;
+            Win32.SetWindowLongPtr(hWnd, Win32.WindowLongs.GWL_EXSTYLE, style);
         }
 
         /// <summary>
@@ -466,25 +495,33 @@ namespace OpenTK.GLControl
         /// <param name="isEnabled">Whether NativeInput support should be enabled or disabled.</param>
         private unsafe void EnableNativeInput(NativeWindow nativeWindow, bool isEnabled)
         {
+#if NETFRAMEWORK
+            EnableNativeInput_Windows(nativeWindow, isEnabled);
+#else
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                IntPtr hWnd = GLFW.GetWin32Window(nativeWindow.WindowPtr);
-
-                // Tweak the WS_DISABLED style bit for the native window.  When enabled,
-                // it will eat all input events directed to it.  When disabled, events will
-                // "pass through" to the parent window (i.e., our WinForms control).
-                IntPtr style = Win32.GetWindowLongPtr(hWnd, Win32.WindowLongs.GWL_STYLE);
-                if (isEnabled)
-                {
-                    style = (IntPtr)((Win32.WindowStyles)(long)style & ~Win32.WindowStyles.WS_DISABLED);
-                }
-                else
-                {
-                    style = (IntPtr)((Win32.WindowStyles)(long)style | Win32.WindowStyles.WS_DISABLED);
-                }
-                Win32.SetWindowLongPtr(hWnd, Win32.WindowLongs.GWL_STYLE, style);
+                EnableNativeInput_Windows(nativeWindow, isEnabled);
             }
             else throw new NotSupportedException("The current operating system is not supported by this control.");
+#endif
+        }
+        private unsafe void EnableNativeInput_Windows(NativeWindow nativeWindow, bool isEnabled)
+        {
+            IntPtr hWnd = GLFW.GetWin32Window(nativeWindow.WindowPtr);
+
+            // Tweak the WS_DISABLED style bit for the native window.  When enabled,
+            // it will eat all input events directed to it.  When disabled, events will
+            // "pass through" to the parent window (i.e., our WinForms control).
+            IntPtr style = Win32.GetWindowLongPtr(hWnd, Win32.WindowLongs.GWL_STYLE);
+            if (isEnabled)
+            {
+                style = (IntPtr)((Win32.WindowStyles)(long)style & ~Win32.WindowStyles.WS_DISABLED);
+            }
+            else
+            {
+                style = (IntPtr)((Win32.WindowStyles)(long)style | Win32.WindowStyles.WS_DISABLED);
+            }
+            Win32.SetWindowLongPtr(hWnd, Win32.WindowLongs.GWL_STYLE, style);
         }
 
         /// <summary>
@@ -494,13 +531,22 @@ namespace OpenTK.GLControl
         /// <returns>True if native input is enabled; false if it is not.</returns>
         private unsafe bool IsNativeInputEnabled(NativeWindow nativeWindow)
         {
+
+#if NETFRAMEWORK
+            return IsNativeInputEnabled_Windows(nativeWindow);
+#else
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                IntPtr hWnd = GLFW.GetWin32Window(nativeWindow.WindowPtr);
-                IntPtr style = Win32.GetWindowLongPtr(hWnd, Win32.WindowLongs.GWL_STYLE);
-                return ((Win32.WindowStyles)(long)style & Win32.WindowStyles.WS_DISABLED) == 0;
+                return IsNativeInputEnabled_Windows(nativeWindow);
             }
             else throw new NotSupportedException("The current operating system is not supported by this control.");
+#endif
+        }
+        private unsafe bool IsNativeInputEnabled_Windows(NativeWindow nativeWindow)
+        {
+            IntPtr hWnd = GLFW.GetWin32Window(nativeWindow.WindowPtr);
+            IntPtr style = Win32.GetWindowLongPtr(hWnd, Win32.WindowLongs.GWL_STYLE);
+            return ((Win32.WindowStyles)(long)style & Win32.WindowStyles.WS_DISABLED) == 0;
         }
 
         /// <summary>
@@ -532,14 +578,20 @@ namespace OpenTK.GLControl
 
             // Last-ditch attempt:  Is the process named `devenv` or `VisualStudio`?
             // These are bad, hacky tests, but they *can* work sometimes.
+#if NETFRAMEWORK
+            if (System.Reflection.Assembly.GetExecutingAssembly().Location.IndexOf("VisualStudio", StringComparison.OrdinalIgnoreCase) >= 0)
+                return true;
+#else
             if (System.Reflection.Assembly.GetExecutingAssembly().Location.Contains("VisualStudio", StringComparison.OrdinalIgnoreCase))
                 return true;
+#endif
             if (string.Equals(System.Diagnostics.Process.GetCurrentProcess().ProcessName, "devenv", StringComparison.OrdinalIgnoreCase))
                 return true;
 
             // Nope.  Not design mode.  Probably.  Maybe.
             return false;
         }
+
 
         /// <summary>
         /// This is triggered when the underlying Handle/HWND instance is *about to be*
@@ -638,7 +690,9 @@ namespace OpenTK.GLControl
                 _resizeEventSuppressed = true;
                 return;
             }
-
+#if NETFRAMEWORK
+            ResizeNativeWindow();
+#else
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
                 BeginInvoke(new Action(ResizeNativeWindow)); // Need the native window to resize first otherwise our control will be in the wrong place.
@@ -647,6 +701,7 @@ namespace OpenTK.GLControl
             {
                 ResizeNativeWindow();
             }
+#endif
 
             base.OnResize(e);
         }

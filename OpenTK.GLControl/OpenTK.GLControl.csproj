@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net9.0-windows;net8.0-windows;net6.0-windows</TargetFrameworks>
+    <TargetFrameworks>net9.0-windows;net8.0-windows;net6.0-windows;net462</TargetFrameworks>
     <UseWindowsForms>true</UseWindowsForms>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -19,13 +19,24 @@
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageTags>OpenTK, GLControl</PackageTags>
     <Nullable>enable</Nullable>
-    <Version>4.0.4</Version>
+    <Version>4.0.5</Version>
     <PackageId>OpenTKEzz.GLControl</PackageId>
+    <Platforms>AnyCPU;x86;x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="OpenTKEzz.Graphics" Version="4.9.9" />
-    <PackageReference Include="OpenTKEzz.Windowing.Desktop" Version="4.9.9" />
+    <PackageReference Include="OpenTKEzz.Graphics" Version="4.9.10" />
+    <PackageReference Include="OpenTKEzz.Windowing.Desktop" Version="4.9.10" />
   </ItemGroup>
 
+  <!--For Direct changes and debugging-->
+  <!--<ItemGroup>
+    <ProjectReference Include="..\..\opentk\src\OpenTK.Windowing.Common\OpenTK.Windowing.Common.csproj" />
+    <ProjectReference Include="..\..\opentk\src\OpenTK.Windowing.Desktop\OpenTK.Windowing.Desktop.csproj" />
+    <ProjectReference Include="..\..\opentk\src\OpenTK.Windowing.GraphicsLibraryFramework\OpenTK.Windowing.GraphicsLibraryFramework.csproj" />
+  </ItemGroup>-->
+
+  <!--<ItemGroup Condition="'$(TargetFramework)' == 'net462'">
+  </ItemGroup>-->
+  
 </Project>

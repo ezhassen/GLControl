@@ -1,5 +1,8 @@
 # Release notes
 
+## [4.0.5]
+- Added net462 support (There is an issue when targeting net462 with OpenTK.redist.glfw (glfw3.dll) nuget not getting matched runtime when profile is AnyCPU so must set to x86 or x64)
+
 ## [4.0.4]
 - Added .net6.0 and .net8.0
 

@@ -1,13 +1,12 @@
 ﻿using System;
-using System.Windows.Forms;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 
 namespace OpenTK.GLControl.TestForm
 {
-    public partial class Form1 : Form
+    public partial class Form1 : System.Windows.Forms.Form
     {
-        private Timer _timer = null!;
+        private System.Windows.Forms.Timer _timer = null!;
         private float _angle = 0.0f;
 
         public Form1()
@@ -22,10 +21,10 @@ namespace OpenTK.GLControl.TestForm
 
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MessageBox.Show(this,
+            System.Windows.Forms.MessageBox.Show(this,
                 "This demonstrates a simple use of the new OpenTK 4.x GLControl.",
                 "GLControl Test Form",
-                MessageBoxButtons.OK);
+                System.Windows.Forms.MessageBoxButtons.OK);
         }
 
         private static readonly Vector3[] VertexData = new Vector3[]
@@ -124,7 +123,7 @@ void main()
             glControl.Paint += glControl_Paint;
 
             // Redraw the screen every 1/20 of a second.
-            _timer = new Timer();
+            _timer = new System.Windows.Forms.Timer();
             _timer.Tick += (sender, e) =>
             {
                 const float DELTA_TIME = 1 / 50f;
@@ -219,7 +218,7 @@ void main()
             projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.PiOver4, aspect_ratio, 1, 64);
         }
 
-        private void glControl_Paint(object sender, PaintEventArgs e)
+        private void glControl_Paint(object sender, System.Windows.Forms.PaintEventArgs e)
         {
             Render();
         }
@@ -230,7 +229,8 @@ void main()
         {
             glControl.MakeCurrent();
 
-            GL.ClearColor(Color4.MidnightBlue);
+            //GL.ClearColor(OpenTK.Mathematics.Color4.MidnightBlue);
+            GL.ClearColor(OpenTK.Mathematics.Color4.MidnightBlue.R, OpenTK.Mathematics.Color4.MidnightBlue.G, OpenTK.Mathematics.Color4.MidnightBlue.B, OpenTK.Mathematics.Color4.MidnightBlue.A);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             GL.Enable(EnableCap.DepthTest);

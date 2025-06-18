@@ -9,6 +9,7 @@
     <!--<NukeScriptDirectory>..</NukeScriptDirectory>-->
     <StartupObject>Build</StartupObject>
     <NukeTelemetryVersion>1</NukeTelemetryVersion>
+    <Platforms>AnyCPU;x86;x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>

@@ -2,15 +2,25 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net9.0-windows</TargetFramework>
+    <TargetFrameworks>net9.0-windows;net462</TargetFrameworks>
     <UseWindowsForms>true</UseWindowsForms>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>8.0</LangVersion>
+    <Platforms>AnyCPU;x86;x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\OpenTK.GLControl\OpenTK.GLControl.csproj" />
   </ItemGroup>
+
+  <!--<PropertyGroup Condition="'$(TargetFramework)' == 'net462'">
+    <RuntimeIdentifiers>win-x86</RuntimeIdentifiers>
+  </PropertyGroup>-->
+
+  <!--For net462 must Set Platforms to x86 or x64 (AnyCPU will get wrong glfw3.dll)-->
+  <!--<ItemGroup Condition="'$(TargetFramework)' == 'net462'">
+    <PackageReference Include="OpenTK.redist.glfw" Version="3.4.0.44" />
+  </ItemGroup>-->
 
 </Project>

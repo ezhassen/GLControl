@@ -31,7 +31,7 @@ namespace OpenTK.GLControl.MultiControlTest
         public int PositionBuffer;
         public int ColorBuffer;
 
-        private Timer _timer = null!;
+        private Timer _timer = null;
         private float _angle = 0.0f;
 
         public Form1()
@@ -64,21 +64,21 @@ namespace OpenTK.GLControl.MultiControlTest
             Contexts.Add(glControl4, new GLControlContext(glControl4));
 
             // Update each control if it's resized or needs to be painted.
-            glControl1.Resize += (sender, e) => SetupProjection(Contexts[(GLControl)sender]);
-            glControl1.Paint += (sender, e) => RenderControl1(Contexts[(GLControl)sender]);
+            glControl1.Resize += (sender, ee) => SetupProjection(Contexts[(GLControl)sender]);
+            glControl1.Paint += (sender, ee) => RenderControl1(Contexts[(GLControl)sender]);
 
-            glControl2.Resize += (sender, e) => SetupProjection(Contexts[(GLControl)sender]);
-            glControl2.Paint += (sender, e) => RenderControl2(Contexts[(GLControl)sender]);
+            glControl2.Resize += (sender, ee) => SetupProjection(Contexts[(GLControl)sender]);
+            glControl2.Paint += (sender, ee) => RenderControl2(Contexts[(GLControl)sender]);
 
-            glControl3.Resize += (sender, e) => SetupProjection(Contexts[(GLControl)sender]);
-            glControl3.Paint += (sender, e) => RenderControl3(Contexts[(GLControl)sender]);
+            glControl3.Resize += (sender, ee) => SetupProjection(Contexts[(GLControl)sender]);
+            glControl3.Paint += (sender, ee) => RenderControl3(Contexts[(GLControl)sender]);
 
-            glControl4.Resize += (sender, e) => SetupProjection(Contexts[(GLControl)sender]);
-            glControl4.Paint += (sender, e) => RenderControl4(Contexts[(GLControl)sender]);
+            glControl4.Resize += (sender, ee) => SetupProjection(Contexts[(GLControl)sender]);
+            glControl4.Paint += (sender, ee) => RenderControl4(Contexts[(GLControl)sender]);
 
             // Redraw each control every 1/20 of a second.
             _timer = new Timer();
-            _timer.Tick += (sender, e) =>
+            _timer.Tick += (sender, ee) =>
             {
                 const float DELTA_TIME = 1 / 50f;
                 _angle += 180f * DELTA_TIME;
@@ -321,22 +321,22 @@ void main()
 
             return program;
 
-            static int CompileShader(ShaderType type, string source)
+        }
+        static int CompileShader(ShaderType type, string source)
+        {
+            int shader = GL.CreateShader(type);
+
+            GL.ShaderSource(shader, source);
+            GL.CompileShader(shader);
+
+            GL.GetShader(shader, ShaderParameter.CompileStatus, out int status);
+            if (status == 0)
             {
-                int shader = GL.CreateShader(type);
-
-                GL.ShaderSource(shader, source);
-                GL.CompileShader(shader);
-
-                GL.GetShader(shader, ShaderParameter.CompileStatus, out int status);
-                if (status == 0)
-                {
-                    string log = GL.GetShaderInfoLog(shader);
-                    throw new Exception($"Failed to compile {type}: {log}");
-                }
-
-                return shader;
+                string log = GL.GetShaderInfoLog(shader);
+                throw new Exception($"Failed to compile {type}: {log}");
             }
+
+            return shader;
         }
     }
 }
